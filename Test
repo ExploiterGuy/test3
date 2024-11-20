@@ -1,4 +1,3 @@
--- UI Library
 local UI = {}
 local TweenService = game:GetService("TweenService")
 
@@ -7,21 +6,22 @@ function UI:CreateMain(title)
     local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
     local Frame = Instance.new("Frame", ScreenGui)
     local UICornerFrame = Instance.new("UICorner", Frame)
-    local Shadow = Instance.new("ImageLabel", Frame) -- Drop shadow effect
+    local UIStrokeFrame = Instance.new("UIStroke", Frame)
 
     ScreenGui.Name = "DynamicUI"
     ScreenGui.ResetOnSpawn = false
 
     Frame.Name = "MainFrame"
-    Frame.Size = UDim2.new(0, 350, 0, 60)
-    Frame.Position = UDim2.new(0.5, -175, 0.5, -120)
+    Frame.Size = UDim2.new(0, 350, 0, 60) -- Start with default size
+    Frame.Position = UDim2.new(0.5, -175, 0.5, -90) -- Centered
     Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
     Frame.BorderSizePixel = 0
     Frame.Draggable = true
     Frame.Active = true
     UICornerFrame.CornerRadius = UDim.new(0, 15)
 
-    -- Add drop shadow to Frame
+    -- Shadow effect
+    local Shadow = Instance.new("ImageLabel")
     Shadow.Name = "Shadow"
     Shadow.Parent = Frame
     Shadow.BackgroundTransparency = 1
@@ -33,19 +33,19 @@ function UI:CreateMain(title)
     Shadow.ScaleType = Enum.ScaleType.Slice
     Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
 
+    -- Stroke effect
+    UIStrokeFrame.Color = Color3.fromRGB(80, 80, 80)
+    UIStrokeFrame.Thickness = 1.5
+
     local Title = Instance.new("TextLabel", Frame)
     Title.Name = "Title"
     Title.Text = title
-    Title.Size = UDim2.new(1, 0, 0, 40)
+    Title.Size = UDim2.new(1, 0, 0, 40) -- Title height
     Title.TextColor3 = Color3.new(1, 1, 1)
     Title.Font = Enum.Font.GothamBold
     Title.TextSize = 18
     Title.BackgroundTransparency = 1
     Title.TextXAlignment = Enum.TextXAlignment.Center
-
-    -- Fade-in animation for the Frame
-    local fadeIn = TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {BackgroundTransparency = 0})
-    fadeIn:Play()
 
     return ScreenGui, Frame
 end
@@ -59,10 +59,28 @@ function UI:AddToggle(frame, labelText, toggleCallback)
     local UICorner = Instance.new("UICorner", Button)
 
     Toggle.Name = "Toggle"
-    Toggle.Size = UDim2.new(1, -10, 0, 50)
-    Toggle.Position = UDim2.new(0.5, -Toggle.Size.X.Offset / 2, 0, frame.Size.Y.Offset)
+    Toggle.Size = UDim2.new(1, -20, 0, 70) -- Increased button height
     Toggle.BackgroundTransparency = 1
 
+    -- Calculate the position for the new button
+    local buttonCount = 0
+    for _, child in pairs(frame:GetChildren()) do
+        if child:IsA("Frame") and child.Name == "Toggle" then
+            buttonCount = buttonCount + 1
+        end
+    end
+
+    -- Dynamically calculate the new frame size based on button count
+    local buttonHeight = 70 -- Increased height
+    local buttonSpacing = 10
+    local totalHeight = (buttonHeight + buttonSpacing) * buttonCount + 40 -- Total height of buttons + title
+    frame.Size = UDim2.new(0, 350, 0, totalHeight)
+
+    -- Position the button correctly
+    local buttonY = (buttonCount * (buttonHeight + buttonSpacing)) + 40
+    Toggle.Position = UDim2.new(0, 10, 0, buttonY)
+
+    -- Label for the toggle
     ToggleLabel.Name = "Label"
     ToggleLabel.Text = labelText
     ToggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
@@ -72,6 +90,7 @@ function UI:AddToggle(frame, labelText, toggleCallback)
     ToggleLabel.BackgroundTransparency = 1
     ToggleLabel.Position = UDim2.new(0.05, 0, 0, 0)
 
+    -- Button to toggle state
     Button.Name = "Button"
     Button.Size = UDim2.new(0.2, 0, 0.8, 0)
     Button.Position = UDim2.new(0.75, 0, 0.1, 0)
@@ -79,30 +98,66 @@ function UI:AddToggle(frame, labelText, toggleCallback)
 
     UICorner.CornerRadius = UDim.new(1, 0)
 
+    -- Indicator to show toggle state
     Indicator.Name = "Indicator"
     Indicator.Size = UDim2.new(0.5, 0, 0.5, 0)
     Indicator.Position = UDim2.new(0.25, 0, 0.25, 0)
     Indicator.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8)
 
-    -- Button scale animation effect on hover
-    local function scaleButton(button)
-        button.MouseEnter:Connect(function()
-            TweenService:Create(button, TweenInfo.new(0.1), {Size = button.Size + UDim2.new(0, 8, 0, 3)}):Play()
-        end)
-        button.MouseLeave:Connect(function()
-            TweenService:Create(button, TweenInfo.new(0.1), {Size = button.Size - UDim2.new(0, 8, 0, 3)}):Play()
-        end)
-    end
-    scaleButton(Button)
-
     local isToggled = false
 
+    -- Toggle functionality
     Button.MouseButton1Click:Connect(function()
         isToggled = not isToggled
         local goal = {BackgroundColor3 = isToggled and Color3.fromRGB(34, 150, 243) or Color3.new(0.2, 0.2, 0.2)}
         TweenService:Create(Indicator, TweenInfo.new(0.3), goal):Play()
         toggleCallback(isToggled)
     end)
+end
 
-    frame.Size = frame.Size + UDim2.new(0, 0, 0, 50)
+-- Add a text box to the UI
+function UI:AddTextBox(frame, placeholderText, textBoxCallback)
+    local TextBox = Instance.new("Frame", frame)
+    local TextInput = Instance.new("TextBox", TextBox)
+    local UICorner = Instance.new("UICorner", TextInput)
+
+    TextBox.Name = "TextBox"
+    TextBox.Size = UDim2.new(1, -20, 0, 70) -- Increased textbox height
+    TextBox.BackgroundTransparency = 1
+
+    -- Calculate the position for the new textbox
+    local buttonCount = 0
+    for _, child in pairs(frame:GetChildren()) do
+        if child:IsA("Frame") and child.Name == "TextBox" then
+            buttonCount = buttonCount + 1
+        end
+    end
+
+    -- Dynamically calculate the new frame size based on textbox count
+    local textBoxHeight = 70 -- Increased height
+    local textBoxSpacing = 10
+    local totalHeight = (textBoxHeight + textBoxSpacing) * buttonCount + 40 -- Total height of textboxes + title
+    frame.Size = UDim2.new(0, 350, 0, totalHeight)
+
+    -- Position the textbox correctly
+    local textBoxY = (buttonCount * (textBoxHeight + textBoxSpacing)) + 40
+    TextBox.Position = UDim2.new(0, 10, 0, textBoxY)
+
+    -- Text input
+    TextInput.Name = "Input"
+    TextInput.Size = UDim2.new(1, 0, 0.8, 0)
+    TextInput.Position = UDim2.new(0, 0, 0.1, 0)
+    TextInput.PlaceholderText = placeholderText
+    TextInput.TextColor3 = Color3.new(1, 1, 1)
+    TextInput.Font = Enum.Font.Gotham
+    TextInput.TextSize = 14
+    TextInput.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    TextInput.ClearTextOnFocus = true
+
+    UICorner.CornerRadius = UDim.new(0.1, 0)
+
+    -- Callback for text change
+    TextInput.FocusLost:Connect(function()
+        textBoxCallback(TextInput.Text)
+    end)
 end
