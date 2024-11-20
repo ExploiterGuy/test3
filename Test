@@ -12,21 +12,23 @@ function UI:CreateMain(title)
     ScreenGui.ResetOnSpawn = false
 
     Frame.Name = "MainFrame"
-    Frame.Size = UDim2.new(0, 300, 0, 50)
-    Frame.Position = UDim2.new(0.5, -150, 0.5, -100)
-    Frame.BackgroundColor3 = Color3.fromRGB(45, 45, 48)
+    Frame.Size = UDim2.new(0, 350, 0, 60)
+    Frame.Position = UDim2.new(0.5, -175, 0.5, -120)
+    Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    Frame.BorderSizePixel = 0
     Frame.Draggable = true
     Frame.Active = true
-    UICornerFrame.CornerRadius = UDim.new(0, 10)
+    UICornerFrame.CornerRadius = UDim.new(0, 15)
 
     local Title = Instance.new("TextLabel", Frame)
     Title.Name = "Title"
     Title.Text = title
-    Title.Size = UDim2.new(1, 0, 0, 30)
+    Title.Size = UDim2.new(1, 0, 0, 40)
     Title.TextColor3 = Color3.new(1, 1, 1)
     Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 16
+    Title.TextSize = 18
     Title.BackgroundTransparency = 1
+    Title.TextXAlignment = Enum.TextXAlignment.Center
 
     return ScreenGui, Frame
 end
@@ -40,7 +42,8 @@ function UI:AddToggle(frame, text, callback)
     local UICorner = Instance.new("UICorner", Button)
 
     Toggle.Name = "Toggle"
-    Toggle.Size = UDim2.new(1, 0, 0, 40)
+    Toggle.Size = UDim2.new(1, -10, 0, 50)
+    Toggle.Position = UDim2.new(0.5, -Toggle.Size.X.Offset / 2, 0, frame.Size.Y.Offset)
     Toggle.BackgroundTransparency = 1
 
     ToggleLabel.Name = "Label"
@@ -55,24 +58,25 @@ function UI:AddToggle(frame, text, callback)
     Button.Name = "Button"
     Button.Size = UDim2.new(0.2, 0, 0.8, 0)
     Button.Position = UDim2.new(0.75, 0, 0.1, 0)
-    Button.BackgroundColor3 = Color3.new(1, 1, 1)
+    Button.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 
     UICorner.CornerRadius = UDim.new(1, 0)
 
     Square.Name = "Square"
     Square.Size = UDim2.new(0.5, 0, 0.5, 0)
     Square.Position = UDim2.new(0.25, 0, 0.25, 0)
-    Square.BackgroundColor3 = Color3.fromRGB(45, 45, 48)
+    Square.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8)
 
     local toggled = false
 
     Button.MouseButton1Click:Connect(function()
         toggled = not toggled
-        Square.BackgroundColor3 = toggled and Color3.fromRGB(34, 150, 243) or Color3.fromRGB(45, 45, 48)
+        local goal = {BackgroundColor3 = toggled and Color3.fromRGB(34, 150, 243) or Color3.new(0.2, 0.2, 0.2)}
+        TweenService:Create(Square, TweenInfo.new(0.3), goal):Play()
         callback(toggled)
     end)
 
-    frame.Size = frame.Size + UDim2.new(0, 0, 0, 40)
+    frame.Size = frame.Size + UDim2.new(0, 0, 0, 50)
 end
 
 -- Add a normal button
@@ -81,19 +85,26 @@ function UI:AddButton(frame, text, callback)
     local UICorner = Instance.new("UICorner", Button)
 
     Button.Text = text
-    Button.Size = UDim2.new(1, -20, 0, 35)
-    Button.Position = UDim2.new(0.5, 0, 0, 0)
+    Button.Size = UDim2.new(1, -20, 0, 45)
+    Button.Position = UDim2.new(0.5, 0, 0, frame.Size.Y.Offset)
     Button.Position = UDim2.new(0.5, -Button.Size.X.Offset / 2, 0, frame.Size.Y.Offset)
     Button.BackgroundColor3 = Color3.fromRGB(34, 150, 243)
     Button.TextColor3 = Color3.new(1, 1, 1)
     Button.Font = Enum.Font.Gotham
-    Button.TextSize = 14
+    Button.TextSize = 16
 
-    UICorner.CornerRadius = UDim.new(0, 8)
+    UICorner.CornerRadius = UDim.new(0, 12)
 
     Button.MouseButton1Click:Connect(callback)
 
-    frame.Size = frame.Size + UDim2.new(0, 0, 0, 40)
+    Button.MouseEnter:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(45, 170, 255)}):Play()
+    end)
+    Button.MouseLeave:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(34, 150, 243)}):Play()
+    end)
+
+    frame.Size = frame.Size + UDim2.new(0, 0, 0, 50)
 end
 
 -- Add a textbox
@@ -103,15 +114,15 @@ function UI:AddTextbox(frame, placeholder, callback)
 
     TextBox.PlaceholderText = placeholder
     TextBox.Text = ""
-    TextBox.Size = UDim2.new(1, -20, 0, 35)
-    TextBox.Position = UDim2.new(0.5, 0, 0, 0)
+    TextBox.Size = UDim2.new(1, -20, 0, 45)
+    TextBox.Position = UDim2.new(0.5, 0, 0, frame.Size.Y.Offset)
     TextBox.Position = UDim2.new(0.5, -TextBox.Size.X.Offset / 2, 0, frame.Size.Y.Offset)
     TextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
     TextBox.TextColor3 = Color3.new(1, 1, 1)
     TextBox.Font = Enum.Font.Gotham
     TextBox.TextSize = 14
 
-    UICorner.CornerRadius = UDim.new(0, 8)
+    UICorner.CornerRadius = UDim.new(0, 12)
 
     TextBox.FocusLost:Connect(function(enterPressed)
         if enterPressed then
@@ -119,7 +130,7 @@ function UI:AddTextbox(frame, placeholder, callback)
         end
     end)
 
-    frame.Size = frame.Size + UDim2.new(0, 0, 0, 40)
+    frame.Size = frame.Size + UDim2.new(0, 0, 0, 50)
 end
 
 return UI
