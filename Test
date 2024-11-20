@@ -7,6 +7,7 @@ function UI:CreateMain(title)
     local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
     local Frame = Instance.new("Frame", ScreenGui)
     local UICornerFrame = Instance.new("UICorner", Frame)
+    local Shadow = Instance.new("ImageLabel", Frame) -- Drop shadow effect
 
     ScreenGui.Name = "DynamicUI"
     ScreenGui.ResetOnSpawn = false
@@ -20,6 +21,18 @@ function UI:CreateMain(title)
     Frame.Active = true
     UICornerFrame.CornerRadius = UDim.new(0, 15)
 
+    -- Add drop shadow to Frame
+    Shadow.Name = "Shadow"
+    Shadow.Parent = Frame
+    Shadow.BackgroundTransparency = 1
+    Shadow.Image = "rbxassetid://1316045217" -- Shadow effect asset
+    Shadow.Size = UDim2.new(1, 20, 1, 20)
+    Shadow.Position = UDim2.new(0, -10, 0, -10)
+    Shadow.ImageColor3 = Color3.new(0, 0, 0)
+    Shadow.ImageTransparency = 0.6
+    Shadow.ScaleType = Enum.ScaleType.Slice
+    Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+
     local Title = Instance.new("TextLabel", Frame)
     Title.Name = "Title"
     Title.Text = title
@@ -29,6 +42,10 @@ function UI:CreateMain(title)
     Title.TextSize = 18
     Title.BackgroundTransparency = 1
     Title.TextXAlignment = Enum.TextXAlignment.Center
+
+    -- Fade-in animation for the Frame
+    local fadeIn = TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {BackgroundTransparency = 0})
+    fadeIn:Play()
 
     return ScreenGui, Frame
 end
@@ -67,6 +84,17 @@ function UI:AddToggle(frame, labelText, toggleCallback)
     Indicator.Position = UDim2.new(0.25, 0, 0.25, 0)
     Indicator.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8)
 
+    -- Button scale animation effect on hover
+    local function scaleButton(button)
+        button.MouseEnter:Connect(function()
+            TweenService:Create(button, TweenInfo.new(0.1), {Size = button.Size + UDim2.new(0, 8, 0, 3)}):Play()
+        end)
+        button.MouseLeave:Connect(function()
+            TweenService:Create(button, TweenInfo.new(0.1), {Size = button.Size - UDim2.new(0, 8, 0, 3)}):Play()
+        end)
+    end
+    scaleButton(Button)
+
     local isToggled = false
 
     Button.MouseButton1Click:Connect(function()
@@ -78,60 +106,3 @@ function UI:AddToggle(frame, labelText, toggleCallback)
 
     frame.Size = frame.Size + UDim2.new(0, 0, 0, 50)
 end
-
--- Add a normal button
-function UI:AddButton(frame, buttonText, onClickCallback)
-    local Button = Instance.new("TextButton", frame)
-    local UICorner = Instance.new("UICorner", Button)
-
-    Button.Text = buttonText
-    Button.Size = UDim2.new(1, -20, 0, 45)
-    Button.Position = UDim2.new(0.5, 0, 0, frame.Size.Y.Offset)
-    Button.Position = UDim2.new(0.5, -Button.Size.X.Offset / 2, 0, frame.Size.Y.Offset)
-    Button.BackgroundColor3 = Color3.fromRGB(34, 150, 243)
-    Button.TextColor3 = Color3.new(1, 1, 1)
-    Button.Font = Enum.Font.Gotham
-    Button.TextSize = 16
-
-    UICorner.CornerRadius = UDim.new(0, 12)
-
-    Button.MouseButton1Click:Connect(onClickCallback)
-
-    Button.MouseEnter:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(45, 170, 255)}):Play()
-    end)
-
-    Button.MouseLeave:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(34, 150, 243)}):Play()
-    end)
-
-    frame.Size = frame.Size + UDim2.new(0, 0, 0, 50)
-end
-
--- Add a textbox
-function UI:AddTextbox(frame, placeholder, onTextSubmit)
-    local TextBox = Instance.new("TextBox", frame)
-    local UICorner = Instance.new("UICorner", TextBox)
-
-    TextBox.PlaceholderText = placeholder
-    TextBox.Text = ""
-    TextBox.Size = UDim2.new(1, -20, 0, 45)
-    TextBox.Position = UDim2.new(0.5, 0, 0, frame.Size.Y.Offset)
-    TextBox.Position = UDim2.new(0.5, -TextBox.Size.X.Offset / 2, 0, frame.Size.Y.Offset)
-    TextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
-    TextBox.TextColor3 = Color3.new(1, 1, 1)
-    TextBox.Font = Enum.Font.Gotham
-    TextBox.TextSize = 14
-
-    UICorner.CornerRadius = UDim.new(0, 12)
-
-    TextBox.FocusLost:Connect(function(enterPressed)
-        if enterPressed then
-            onTextSubmit(TextBox.Text)
-        end
-    end)
-
-    frame.Size = frame.Size + UDim2.new(0, 0, 0, 50)
-end
-
-return UI
