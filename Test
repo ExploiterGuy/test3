@@ -1,0 +1,125 @@
+-- UI Library
+local UI = {}
+local TweenService = game:GetService("TweenService")
+
+-- Create the main UI
+function UI:CreateMain(title)
+    local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
+    local Frame = Instance.new("Frame", ScreenGui)
+    local UICornerFrame = Instance.new("UICorner", Frame)
+
+    ScreenGui.Name = "DynamicUI"
+    ScreenGui.ResetOnSpawn = false
+
+    Frame.Name = "MainFrame"
+    Frame.Size = UDim2.new(0, 300, 0, 50)
+    Frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+    Frame.BackgroundColor3 = Color3.fromRGB(45, 45, 48)
+    Frame.Draggable = true
+    Frame.Active = true
+    UICornerFrame.CornerRadius = UDim.new(0, 10)
+
+    local Title = Instance.new("TextLabel", Frame)
+    Title.Name = "Title"
+    Title.Text = title
+    Title.Size = UDim2.new(1, 0, 0, 30)
+    Title.TextColor3 = Color3.new(1, 1, 1)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 16
+    Title.BackgroundTransparency = 1
+
+    return ScreenGui, Frame
+end
+
+-- Add a toggle button
+function UI:AddToggle(frame, text, callback)
+    local Toggle = Instance.new("Frame", frame)
+    local ToggleLabel = Instance.new("TextLabel", Toggle)
+    local Button = Instance.new("TextButton", Toggle)
+    local Square = Instance.new("Frame", Button)
+    local UICorner = Instance.new("UICorner", Button)
+
+    Toggle.Name = "Toggle"
+    Toggle.Size = UDim2.new(1, 0, 0, 40)
+    Toggle.BackgroundTransparency = 1
+
+    ToggleLabel.Name = "Label"
+    ToggleLabel.Text = text
+    ToggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+    ToggleLabel.TextColor3 = Color3.new(1, 1, 1)
+    ToggleLabel.Font = Enum.Font.Gotham
+    ToggleLabel.TextSize = 14
+    ToggleLabel.BackgroundTransparency = 1
+    ToggleLabel.Position = UDim2.new(0.05, 0, 0, 0)
+
+    Button.Name = "Button"
+    Button.Size = UDim2.new(0.2, 0, 0.8, 0)
+    Button.Position = UDim2.new(0.75, 0, 0.1, 0)
+    Button.BackgroundColor3 = Color3.new(1, 1, 1)
+
+    UICorner.CornerRadius = UDim.new(1, 0)
+
+    Square.Name = "Square"
+    Square.Size = UDim2.new(0.5, 0, 0.5, 0)
+    Square.Position = UDim2.new(0.25, 0, 0.25, 0)
+    Square.BackgroundColor3 = Color3.fromRGB(45, 45, 48)
+
+    local toggled = false
+
+    Button.MouseButton1Click:Connect(function()
+        toggled = not toggled
+        Square.BackgroundColor3 = toggled and Color3.fromRGB(34, 150, 243) or Color3.fromRGB(45, 45, 48)
+        callback(toggled)
+    end)
+
+    frame.Size = frame.Size + UDim2.new(0, 0, 0, 40)
+end
+
+-- Add a normal button
+function UI:AddButton(frame, text, callback)
+    local Button = Instance.new("TextButton", frame)
+    local UICorner = Instance.new("UICorner", Button)
+
+    Button.Text = text
+    Button.Size = UDim2.new(1, -20, 0, 35)
+    Button.Position = UDim2.new(0.5, 0, 0, 0)
+    Button.Position = UDim2.new(0.5, -Button.Size.X.Offset / 2, 0, frame.Size.Y.Offset)
+    Button.BackgroundColor3 = Color3.fromRGB(34, 150, 243)
+    Button.TextColor3 = Color3.new(1, 1, 1)
+    Button.Font = Enum.Font.Gotham
+    Button.TextSize = 14
+
+    UICorner.CornerRadius = UDim.new(0, 8)
+
+    Button.MouseButton1Click:Connect(callback)
+
+    frame.Size = frame.Size + UDim2.new(0, 0, 0, 40)
+end
+
+-- Add a textbox
+function UI:AddTextbox(frame, placeholder, callback)
+    local TextBox = Instance.new("TextBox", frame)
+    local UICorner = Instance.new("UICorner", TextBox)
+
+    TextBox.PlaceholderText = placeholder
+    TextBox.Text = ""
+    TextBox.Size = UDim2.new(1, -20, 0, 35)
+    TextBox.Position = UDim2.new(0.5, 0, 0, 0)
+    TextBox.Position = UDim2.new(0.5, -TextBox.Size.X.Offset / 2, 0, frame.Size.Y.Offset)
+    TextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
+    TextBox.TextColor3 = Color3.new(1, 1, 1)
+    TextBox.Font = Enum.Font.Gotham
+    TextBox.TextSize = 14
+
+    UICorner.CornerRadius = UDim.new(0, 8)
+
+    TextBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            callback(TextBox.Text)
+        end
+    end)
+
+    frame.Size = frame.Size + UDim2.new(0, 0, 0, 40)
+end
+
+return UI
